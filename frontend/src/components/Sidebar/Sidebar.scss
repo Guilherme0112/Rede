@@ -1,0 +1,21 @@
+.sidebar {
+  padding: 20px;
+  width: 200px;
+  border-right: 1px solid #e6ecf025;
+  
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin: 15px 0;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: start;
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+    }
+  }
+}
