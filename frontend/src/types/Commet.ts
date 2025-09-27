@@ -1,11 +1,10 @@
 import type { User } from "./User";
 
-export interface Post {
+export interface Comment {
   id: number;
   user: User;
   content: string;
   timestamp: string;
   likes: number;
-  retweets: number;
-  comments: Comment[];
+  liked?: boolean;
 }

@@ -1,29 +1,36 @@
-import { Tablet } from "lucide-react";
-import "./Sidebar.scss";
+import { Home, User, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import "./Sidebar.scss";
 
 export default function Sidebar() {
   return (
     <aside className="sidebar">
-      <h2>
-        <Tablet size={70} />
-      </h2>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/login">Entrar</Link>
-          </li>
-          <li>
-            <Link to="/login">Meu Perfil</Link>
-          </li>
-          <li>
-            <Link to="/register">Criar Conta</Link>
-          </li>
-        </ul>
-      </nav>
+      <ul>
+        <li>
+          <Link to="/">
+            <Home size={20} color="white" />
+            <span>Home</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/profile">
+            <User size={20} color="white" />
+            <span>Meu Perfil</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/login">
+            <LogIn size={20} color="white" />
+            <span>Entrar</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/register">
+            <UserPlus size={20} color="white" />
+            <span>Criar Conta</span>
+          </Link>
+        </li>
+      </ul>
     </aside>
   );
 }

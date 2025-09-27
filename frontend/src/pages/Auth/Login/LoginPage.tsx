@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./LoginPage.scss";
+import Input from "../../../components/Input/Input";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,15 +17,15 @@ export default function LoginPage() {
       <div className="login__box">
         <h2>Entrar</h2>
         <form onSubmit={handleSubmit}>
-          <input
-            type="email"
+          <Input 
+            type="text" 
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <input
-            type="password"
+          <Input 
+            type="password" 
             placeholder="Senha"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
