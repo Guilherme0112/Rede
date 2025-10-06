@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import 'dotenv/config';
 
-const MONGO_URI = 'mongodb://localhost:27017/meuBanco';
+const MONGO_URI = process.env.MONGO_URI || '';
 
 export async function connectMongo() {
   try {

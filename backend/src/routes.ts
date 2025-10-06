@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import PostsRouter from '@src/app/modules/Post/Router';
+import UsersRouter from '@src/app/modules/User/Router';
+import CommentRouter from '@src/app/modules/Comment/Router';
 
-class Routes {
-    static define(router: Router): Router {
-        router.use('/posts', PostsRouter);
-        return router;
-    }
-}
+const router = Router();
 
-export default Routes.define(Router());
+router.use('/api/posts', PostsRouter);
+router.use('/api/users', UsersRouter);
+router.use('/api/comments', CommentRouter);
+
+export default router;
