@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { UserService } from './UserService';
+import { verifyToken } from '@src/app/middleware/authMiddleware';
 
 const router = Router();
 const userService = new UserService();
@@ -13,7 +14,7 @@ router.get('/', async (request, response) => {
     }
 });
 
-router.post('/', async (request, response) => {
+router.post('/', verifyToken, async (request, response) => {
     try {
         const user = await userService.createUser(request.body);
         return response.status(201).send(user);
@@ -22,7 +23,7 @@ router.post('/', async (request, response) => {
     }
 });
 
-router.delete('/:id', async (request, response) => {
+router.delete('/:id', verifyToken, async (request, response) => {
     try {
         const { id } = request.params;
         await userService.deleteUser(id);

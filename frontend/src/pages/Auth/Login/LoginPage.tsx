@@ -1,42 +1,55 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import "./LoginPage.scss";
 import Input from "../../../components/Input/Input";
+import { Link } from "react-router-dom";
+import { authApi } from "../../../api/auth/authApi";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../store";
+import { fetchMe } from "../../../store/slices/authSlice";
+
+type FormData = {
+  email: string;
+  senha: string;
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const { register, handleSubmit } = useForm<FormData>();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Login com:", { email, senha });
-    // aqui você chama sua API de autenticação
+  const onSubmit = async(data: FormData) => {
+    try {
+      await authApi.login(data);
+      dispatch(fetchMe());
+      window.location.href = "/";
+    } catch (error) {
+      
+    }
   };
 
   return (
     <div className="login">
       <div className="login__box">
         <h2>Entrar</h2>
-        <form onSubmit={handleSubmit}>
-          <Input 
-            type="text" 
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            type="text"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
           />
 
-          <Input 
-            type="password" 
+          <Input
+            type="password"
             placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
+            {...register("senha")}
           />
 
           <button type="submit">Login</button>
         </form>
         <p className="login__register">
-          Não tem conta? <a href="/register">Cadastre-se</a>
+          Não tem conta? <Link to="/register">Cadastre-se</Link>
         </p>
       </div>
     </div>
   );
 }
+

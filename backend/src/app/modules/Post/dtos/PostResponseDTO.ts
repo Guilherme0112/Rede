@@ -17,18 +17,6 @@ export class PostResponseDTO {
     this.timestamp = post.timestamp;
     this.likes = post.likes;
     this.retweets = post.retweets;
-    this.comments = post.comments?.map((c: any) => ({
-      id: c._id.toString(),
-      user: {
-        id: c.user._id.toString(),
-        nome: c.user.nome,
-        avatar: c.user.avatar,
-        email: c.user.email,
-      },
-      content: c.content,
-      timestamp: c.timestamp,
-      likes: c.likes,
-      liked: c.liked,
-    })) || [];
+    this.comments = post.comments?.map((c: any) => new CommentResponseDTO(c)) || [];
   }
 }

@@ -1,7 +1,7 @@
 // UserProfilePage.tsx
 import { useState } from "react";
 import "./ProfilePage.scss";
-import Post from "../../components/Post/Post";
+import Post from "../../components/PostBox/PostBox";
 
 export default function ProfilePage() {
 

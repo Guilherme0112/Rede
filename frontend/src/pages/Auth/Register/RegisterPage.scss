@@ -56,5 +56,18 @@
         }
       }
     }
+    .login__register {
+      margin-top: 20px;
+      font-size: 14px;
+
+      a {
+        color: #1d9bf0;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }

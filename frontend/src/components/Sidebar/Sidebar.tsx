@@ -1,8 +1,31 @@
-import { Home, User, LogIn, UserPlus } from "lucide-react";
+import { Home, User, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import "./Sidebar.scss";
+import { authApi } from "../../api/auth/authApi";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../store";
+import { useEffect } from "react";
+import { fetchMe, logout } from "../../store/slices/authSlice";
 
 export default function Sidebar() {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    dispatch(fetchMe());
+  }, [dispatch]);
+
+  const sair = async () => {
+    try {   
+      await authApi.logout();
+      dispatch(logout());
+      window.location.href = "/login";
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <aside className="sidebar">
       <ul>
@@ -12,24 +35,37 @@ export default function Sidebar() {
             <span>Home</span>
           </Link>
         </li>
-        <li>
-          <Link to="/profile">
-            <User size={20} color="white" />
-            <span>Meu Perfil</span>
-          </Link>
-        </li>
-        <li>
-          <Link to="/login">
-            <LogIn size={20} color="white" />
-            <span>Entrar</span>
-          </Link>
-        </li>
-        <li>
-          <Link to="/register">
-            <UserPlus size={20} color="white" />
-            <span>Criar Conta</span>
-          </Link>
-        </li>
+        {user ? (
+          <>
+            <li>
+              <Link to="/profile">
+                <User size={20} color="white" />
+                <span>Meu Perfil</span>
+              </Link>
+            </li>
+            <li>
+              <a href="#" onClick={() => sair()}>
+                <LogOut size={20} color="white" />
+                <span>Sair</span>
+              </a>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link to="/login">
+                <LogIn size={20} color="white" />
+                <span>Entrar</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/register">
+                <UserPlus size={20} color="white" />
+                <span>Criar Conta</span>
+              </Link>
+            </li>
+          </>
+        )}
       </ul>
     </aside>
   );

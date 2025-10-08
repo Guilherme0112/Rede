@@ -2,12 +2,18 @@ import { useForm } from "react-hook-form";
 import "./RegisterPage.scss";
 import Input from "../../../components/Input/Input";
 import type { User } from "../../../types/User";
+import { Link } from "react-router-dom";
+import { userApi } from "../../../api/users/userApi";
 
 export default function RegisterPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<User>();
 
-  const onSubmit = (data: User) => {
-    console.log("Cadastro enviado:", data);
+  const onSubmit = async(data: User) => {
+    try {
+      const res = await userApi.create(data);
+    } catch (error) {
+      
+    }
   };
 
   return (
@@ -48,6 +54,9 @@ export default function RegisterPage() {
 
           <button type="submit">Cadastrar</button>
         </form>
+        <p className="login__register">
+          Já tem conta? <Link to="/login">Faça login</Link>
+        </p>
       </div>
     </div>
   );

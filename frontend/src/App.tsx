@@ -7,16 +7,13 @@ import RegisterPage from './pages/Auth/Register/RegisterPage'
 import ProfilePage from './pages/Profile/ProfilePage'
 
 function App() {
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route>
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/register' element={<RegisterPage />} />
-        </Route>
         <Route element={<Layout />}>
           <Route path='/' element={<HomePage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
           <Route path='/profile' element={<ProfilePage />} />
         </Route>
       </Routes>

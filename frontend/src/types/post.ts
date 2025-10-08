@@ -1,7 +1,7 @@
 import type { User } from "./User";
 
 export interface Post {
-  id: number;
+  id: string;
   user: User;
   content: string;
   timestamp: string;
