@@ -12,6 +12,7 @@ export default function Sidebar() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
 
+
   useEffect(() => {
     dispatch(fetchMe());
   }, [dispatch]);

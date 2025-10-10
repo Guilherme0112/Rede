@@ -1,25 +1,31 @@
 import { useState } from 'react';
 import './CreatePost.scss';
+import { postApi } from '../../api/posts/postApi';
 
 export type PostPayload = { text: string };
 
 export default function CreatePost({ onPost, placeholder = 'No que você está pensando?' }: { onPost?: (p: PostPayload) => void; placeholder?: string }) {
-  const [text, setText] = useState('');
+  const [content, setContent] = useState('');
 
-  function submit() {
-    console.log(text)
-  }
+  const submit = async() => {
+    try {
+      await postApi.create({ content });
+      setContent("");
+    } catch (error) {
+      
+    }
+  };
 
   return (
     <div className="pc-simple">
       <textarea
         className="pc-simple-textarea"
         placeholder={placeholder}
-        value={text}
-        onChange={e => setText(e.target.value)}
+        value={content}
+        onChange={e => setContent(e.target.value)}
       />
       <div className="pc-simple-actions">
-        <button className="pc-simple-btn" onClick={submit} disabled={!text.trim()}>
+        <button className="pc-simple-btn" onClick={submit} disabled={!content.trim()}>
           Criar postagem
         </button>
       </div>

@@ -1,3 +1,4 @@
+import { getContext } from "@src/context";
 import { NewPostDTO } from "./dtos/NewPostDTO";
 import { PostResponseDTO } from "./dtos/PostResponseDTO";
 import { Post } from "./Post.model";
@@ -10,15 +11,21 @@ export class PostService {
     }
 
     async createPost(data: NewPostDTO): Promise<PostResponseDTO> {
-        if (data == null) throw new Error("O post não pode ser nulo");
+        if (!data) throw new Error("O post não pode ser nulo");
 
-        const post = await Post.create(data);
+        const context = getContext();
+        if (!context?.userId) throw new Error("Usuário não autenticado");
 
-        const populatedPost = await post.populate([
-            { path: 'user' }
-        ]);
+        const postData = new NewPostDTO({
+            ...data,
+            user: context.userId 
+        });
+
+        const post = await Post.create(postData);
+        const populatedPost = await post.populate([{ path: 'user' }]);
         return new PostResponseDTO(populatedPost);
     }
+
 
     async deletePost(id: string): Promise<void> {
         if (!id) throw new Error("ID do post é obrigatório");
