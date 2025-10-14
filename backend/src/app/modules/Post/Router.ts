@@ -23,6 +23,15 @@ router.post('/', verifyToken, async(request, response) => {
     }
 });
 
+router.put('/:id', verifyToken, async(request, response) => {
+    try {
+        const post = await postService.updatePost(request.body);
+        return response.status(201).send(post);
+    } catch (error: any) {
+        return response.status(400).json({ error: error.message });
+    }
+});
+
 router.delete('/:id', verifyToken, async(request, response) => {
     try {
         const { id } = request.params;
