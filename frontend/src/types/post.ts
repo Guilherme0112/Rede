@@ -1,3 +1,4 @@
+import type { Comment } from "./Commet";
 import type { User } from "./User";
 
 export interface Post {
