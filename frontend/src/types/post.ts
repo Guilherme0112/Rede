@@ -1,4 +1,4 @@
-import type { Comment } from "./Commet";
+import type { Comment } from "./Comment";
 import type { User } from "./User";
 
 export interface Post {

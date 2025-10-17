@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./ProfilePage.scss";
-import Post from "../../components/PostBox/PostBox";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store";
 import { formatDateTime } from "../../utils/helpers";
@@ -8,7 +7,6 @@ import { formatDateTime } from "../../utils/helpers";
 export default function ProfilePage() {
 
   const user = useSelector((state: RootState) => state.auth.user);
-
   const [activeTab, setActiveTab] = useState<"posts">("posts");
 
   return (

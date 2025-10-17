@@ -1,27 +1,69 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, MoreHorizontal, User, Trash2, Edit } from 'lucide-react';
 import "./PostBox.scss";
-import type { Post as PostType } from '../../types/post';
 import { formatDateTime } from '../../utils/helpers';
 import { useDeletePost } from '../../hooks/usePosts';
 import toast from 'react-hot-toast';
 import EditarPost from '../EditarPost/EditarPost';
+import type { Post } from '../../types/post';
+import { useComments, useCreateComment, useDeleteComment } from '../../hooks/useComments';
+import type { CommentCreate } from '../../types/dtos/CommentCreate';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../store';
+import { Link } from 'react-router-dom';
+import EditarComment from '../EditarComment/EditarComment';
+import type { Comment } from '../../types/Comment';
 
 type PostBoxProps = {
-  post: PostType
+  post: Post;
 }
 
 const PostBox = ({ post }: PostBoxProps) => {
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
+  const [showEdit, setShowEdit] = useState<'comment' | 'post' | null>(null);
+  const { mutate: createComment } = useCreateComment();
   const { mutate: deletePost, isPending } = useDeletePost();
+  const [newComment, setNewComment] = useState<CommentCreate>({ post: '', content: '', });
+  const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
+  const [editingComment, setEditingComment] = useState<Comment | null>(null);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const { mutate: deleteComment } = useDeleteComment(post.id);
+  const { data: comments = [] } = useComments(post.id);
+
 
   const handleLike = (postId: string, commentId: string | null = null) => console.log("like", postId, commentId);
   const toggleComments = () => setShowComments(prev => !prev);
-  const handleAddComment = () => console.log("comentário");
-  const handleEdit = (postId: string) => { setShowEdit(true); setShowMenu(false); };
+  const handleAddComment = (post: string, content: string) => {
+    const commentData = {
+      post,
+      content,
+    };
+    createComment(commentData);
+    setNewComment({ post: '', content: '' });
+    toast.success('Comentário criado com sucesso!')
+  };
+
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId, {
+      onSuccess: () => {
+        toast.success('Comentário deletado com sucesso!');
+      },
+      onError: () => {
+        toast.error('Erro ao deletar comentário. Tente novamente.');
+      },
+    });
+  };
+
+
+
+  const handleEditComment = (comment: Comment) => {
+    setEditingComment(comment);
+    setShowEdit('comment')
+  }
+
+  const handleEdit = (postId: string) => { setShowEdit('post'); setShowMenu(false); };
   const handleDelete = (postId: string) => {
     deletePost(postId, {
       onSuccess: () => {
@@ -64,17 +106,25 @@ const PostBox = ({ post }: PostBoxProps) => {
             </div>
 
             <div className="post-text">{post.content}</div>
+            {user ? (
+              <div className="actions">
+                <button className={`action-button like ${post.likes ? 'active' : ''}`} onClick={() => handleLike(post.id)}>
+                  <div className="action-icon"><Heart size={18} fill={post.likes ? 'currentColor' : 'none'} /></div>
+                  <span>{formatNumber(post.likes)}</span>
+                </button>
+                <button className="action-button comment" onClick={toggleComments}>
+                  <div className="action-icon"><MessageCircle size={18} /></div>
+                  <span>{formatNumber(post.comments.length)}</span>
+                </button>
+              </div>
+            ) : (
+              <h4 className="login-warning">
+                Você precisa estar logado para curtir, comentar e interagir com as postagens.<br />
+                <Link className="login-link" to="/login">Entre ou crie sua conta agora.</Link >
+              </h4>
 
-            <div className="actions">
-              <button className={`action-button like ${post.likes ? 'active' : ''}`} onClick={() => handleLike(post.id)}>
-                <div className="action-icon"><Heart size={18} fill={post.likes ? 'currentColor' : 'none'} /></div>
-                <span>{formatNumber(post.likes)}</span>
-              </button>
-              <button className="action-button comment" onClick={toggleComments}>
-                <div className="action-icon"><MessageCircle size={18} /></div>
-                <span>{formatNumber(post.comments.length)}</span>
-              </button>
-            </div>
+            )}
+
           </div>
         </div>
 
@@ -87,84 +137,87 @@ const PostBox = ({ post }: PostBoxProps) => {
                 <div className="comment-input-container">
                   <textarea
                     className="comment-textarea"
-                    value={newComment[post.id] || ''}
-                    onChange={(e) => setNewComment({ [post.id]: e.target.value })}
+                    value={newComment.post === post.id ? newComment.content : ''}
+                    onChange={(e) =>
+                      setNewComment({ post: post.id, content: e.target.value })
+                    }
                     placeholder="Adicionar um comentário..."
                     rows={3}
                   />
                   <div className="comment-actions">
-                    <button className="comment-submit" onClick={handleAddComment} disabled={!newComment[post.id]?.trim()}>Comentar</button>
+                    <button
+                      className="comment-submit"
+                      onClick={() => handleAddComment(post.id, newComment.content)}
+                      disabled={!newComment.content.trim()}
+                    >
+                      Comentar
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Comentários existentes */}
-            {post.comments.map(comment => (
+            {comments.map(comment => (
               <div key={comment.id} className="comment">
                 <div className="comment-header">
                   <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
                   <div className="comment-content">
                     <div className="comment-user-info">
-                      <span className="comment-user-name">{comment.user.nome}</span>
-                      <span className="comment-username">@{comment.user._id}</span>
-                      <span className="separator">·</span>
-                      <span className="comment-timestamp">{comment.timestamp}</span>
+                      <div className="comment-user-info-1">
+                        <span className="comment-user-name">{comment.user.nome}</span>
+                        <span className="username">@{comment.user._id}</span>
+                        <span className="separator">·</span>
+                        <span className="timestamp">{formatDateTime(comment.timestamp)}</span>
+                      </div>
+
                       {/* Dropdown para comentário */}
                       <div className="more-container">
-                        <button className="more-button"> <MoreHorizontal size={16} /> </button>
-                        {/* Aqui você pode adicionar menu de editar/deletar comentário */}
-                      </div>
-                    </div>
-                    <div className="comment-text">{comment.content}</div>
+                        <button
+                          className="more-button"
+                          onClick={() =>
+                            setOpenCommentMenuId(prev => prev === comment.id ? null : comment.id)
+                          }
+                        >
+                          <MoreHorizontal size={16} />
+                        </button>
 
-                    {/* Likes de comentário */}
-                    <div className="comment-actions">
-                      <button className={`comment-like ${comment.liked ? 'active' : ''}`} onClick={() => handleLike(post.id, comment.id)}>
-                        <div className="comment-like-icon">
-                          <Heart size={16} fill={comment.liked ? 'currentColor' : 'none'} />
-                        </div>
-                        <span>{formatNumber(comment.likes)}</span>
-                      </button>
-                    </div>
-
-                    {/* Subcomentários, se houver */}
-                    {comment.replies && comment.replies.length > 0 && (
-                      <div className="comments-section">
-                        {comment.replies.map(reply => (
-                          <div key={reply.id} className="comment">
-                            <div className="comment-header">
-                              <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
-                              <div className="comment-content">
-                                <div className="comment-user-info">
-                                  <span className="comment-user-name">{reply.user.nome}</span>
-                                  <span className="comment-username">@{reply.user._id}</span>
-                                  <span className="separator">·</span>
-                                  <span className="comment-timestamp">{reply.timestamp}</span>
-                                </div>
-                                <div className="comment-text">{reply.content}</div>
-                              </div>
-                            </div>
+                        {openCommentMenuId === comment.id && (
+                          <div className="dropdown-menu">
+                            <button onClick={() => handleEditComment(comment)}>
+                              <Edit size={14} /> Editar
+                            </button>
+                            <button onClick={() => handleDeleteComment(comment.id)}>
+                              <Trash2 size={14} /> Excluir
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        )}
+                        {showEdit === "comment" && (
+                          <EditarComment
+                            comment={editingComment!}
+                            isOpen={showEdit === 'comment'}
+                            onClose={() => setShowEdit(null)}
+                            postId={post.id}
+                          />
+                        )}
 
+                      </div>
+                    </div>
+
+                    <div className="comment-text">{comment.content}</div>
                   </div>
                 </div>
               </div>
             ))}
-
           </div>
         )}
       </div>
 
-
-      {showEdit && (
+      {showEdit === 'post' && (
         <EditarPost
           post={post}
-          isOpen={showEdit}
-          onClose={() => setShowEdit(false)}
+          isOpen={showEdit === 'post'}
+          onClose={() => setShowEdit(null)}
         />
       )}
     </>
