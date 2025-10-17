@@ -5,7 +5,7 @@ import { verifyToken } from '@src/app/middleware/authMiddleware';
 const router = Router();
 const commentService = new CommentService();
 
-router.get('/:post', async(request, response) => {
+router.get('/post/:post', async(request, response) => {
     try {
         const { post } = request.params;
         const comments = await commentService.getByPost(post);
@@ -18,6 +18,16 @@ router.get('/:post', async(request, response) => {
 router.post('/', verifyToken, async(request, response) => {
     try {
         const comments = await commentService.createComment(request.body);
+        return response.status(201).send(comments);
+    } catch (error: any) {
+        return response.status(400).json({ error: error.message });
+    }
+});
+
+router.put('/:id', verifyToken, async(request, response) => {
+    try {
+        const { id } = request.params;
+        const comments = await commentService.updateComment(request.body);
         return response.status(201).send(comments);
     } catch (error: any) {
         return response.status(400).json({ error: error.message });

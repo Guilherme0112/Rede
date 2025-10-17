@@ -1,9 +1,9 @@
-export class NewCommentDTO {
+export class UpdateCommentDTO {
   content: string;
-  post: string;
+  comment: string;
 
   constructor(comment: any) {
     this.content = comment.content;
-    this.post = comment.post;
+    this.comment = comment.comment;
   }
 }

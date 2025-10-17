@@ -9,7 +9,13 @@ export class PostService {
     async getAll(): Promise<PostResponseDTO[]> {
         const posts = await Post.find()
             .populate('user')
-            .populate('comments')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'user',
+                    model: 'User'
+                }
+            })
             .sort({ timestamp: -1 });
 
         return posts.map(post => new PostResponseDTO(post));
