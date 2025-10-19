@@ -3,6 +3,7 @@ import { Heart, MessageCircle, MoreHorizontal, User, Trash2, Edit } from 'lucide
 import "./PostBox.scss";
 import { formatDateTime } from '../../utils/helpers';
 import { useDeletePost } from '../../hooks/usePosts';
+import { usePostLikes, useCreateLike, useDeleteLike } from '../../hooks/useLikes';
 import toast from 'react-hot-toast';
 import EditarPost from '../EditarPost/EditarPost';
 import type { Post } from '../../types/post';
@@ -23,195 +24,215 @@ const PostBox = ({ post }: PostBoxProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showEdit, setShowEdit] = useState<'comment' | 'post' | null>(null);
   const { mutate: createComment } = useCreateComment();
-  const { mutate: deletePost, isPending } = useDeletePost();
-  const [newComment, setNewComment] = useState<CommentCreate>({ post: '', content: '', });
+  const { mutate: deletePost } = useDeletePost();
+  const [newComment, setNewComment] = useState<CommentCreate>({ post: '', content: '' });
   const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
-  const { mutate: deleteComment } = useDeleteComment(post.id);
-  const { data: comments = [] } = useComments(post.id);
+  const { mutate: deleteComment } = useDeleteComment(post._id);
+  const { data: comments = [] } = useComments(post._id);
 
+  // Likes
+  const { data: likeData, refetch: refetchLikes } = usePostLikes(post._id);
+  const { mutate: createLike } = useCreateLike();
+  const { mutate: deleteLike } = useDeleteLike();
 
-  const handleLike = (postId: string, commentId: string | null = null) => console.log("like", postId, commentId);
-  const toggleComments = () => setShowComments(prev => !prev);
-  const handleAddComment = (post: string, content: string) => {
-    const commentData = {
-      post,
-      content,
-    };
-    createComment(commentData);
-    setNewComment({ post: '', content: '' });
-    toast.success('Comentário criado com sucesso!')
+  const handleLike = (postId: string) => {
+
+    console.log(post._id);
+    console.log(postId)
+
+    if (!user) {
+      toast.error("Você precisa estar logado para curtir.");
+      return;
+    }
+
+    if (likeData?.likedByUser) {
+      deleteLike(postId, {
+        onSuccess: () => {
+          refetchLikes();
+        },
+        onError: () => toast.error("Erro ao remover like."),
+      });
+    } else {
+      createLike({ post: postId }, {
+        onSuccess: () => { refetchLikes(); },
+        onError: () => toast.error("Erro ao curtir o post."),
+      });
+
+    }
   };
 
+  const toggleComments = () => setShowComments(prev => !prev);
 
-  const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId, {
+  const handleAddComment = (post: string, content: string) => {
+    const commentData = { post, content };
+    createComment(commentData, {
       onSuccess: () => {
-        toast.success('Comentário deletado com sucesso!');
+        setNewComment({ post: '', content: '' });
+        toast.success('Comentário criado com sucesso!');
       },
-      onError: () => {
-        toast.error('Erro ao deletar comentário. Tente novamente.');
-      },
+      onError: () => toast.error('Erro ao criar comentário.'),
     });
   };
 
-
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId, {
+      onSuccess: () => toast.success('Comentário deletado com sucesso!'),
+      onError: () => toast.error('Erro ao deletar comentário. Tente novamente.'),
+    });
+  };
 
   const handleEditComment = (comment: Comment) => {
     setEditingComment(comment);
-    setShowEdit('comment')
-  }
+    setShowEdit('comment');
+  };
 
   const handleEdit = (postId: string) => { setShowEdit('post'); setShowMenu(false); };
   const handleDelete = (postId: string) => {
     deletePost(postId, {
-      onSuccess: () => {
-        toast.success('Post deletado com sucesso!');
-        setShowMenu(false);
-      },
-      onError: (err) => {
-        toast.error('Ocorreu algum erro ao deletar a postagem. Tente novamente mais tarde')
-      }
-    });; setShowMenu(false);
+      onSuccess: () => toast.success('Post deletado com sucesso!'),
+      onError: () => toast.error('Erro ao deletar post.'),
+    });
+    setShowMenu(false);
   };
+
   const formatNumber = (num: number) => (num >= 1000 ? (num / 1000).toFixed(1) + 'k' : num.toString());
 
-  return (
-    <>
-      <div className="post">
-        <div className="post-header">
-          <div className="avatar"><User size={24} color="var(--text-muted)" /></div>
-          <div className="post-content">
-            <div className="user-info-container">
-              <div className="user-info">
-                <span className="user-name">{post.user.nome}</span>
-                <div><span className='username'>@</span><span className="username">{post.user._id}</span></div>
-                <span className="separator">·</span>
-                <span className="timestamp">{formatDateTime(post.timestamp)}</span>
-              </div>
 
-              {/* Botão 3 pontinhos */}
-              <div className="more-container">
-                <button className="more-button" onClick={() => setShowMenu(prev => !prev)}>
-                  <MoreHorizontal size={20} />
-                </button>
-                {showMenu && (
-                  <div className="dropdown-menu">
-                    <button onClick={() => handleEdit(post.id)}><Edit size={14} /> Editar</button>
-                    <button onClick={() => handleDelete(post.id)}><Trash2 size={14} /> Excluir</button>
-                  </div>
-                )}
-              </div>
+  return (
+    <div className="post">
+      <div className="post-header">
+        <div className="avatar"><User size={24} color="var(--text-muted)" /></div>
+        <div className="post-content">
+          <div className="user-info-container">
+            <div className="user-info">
+              <span className="user-name">{post.user.nome}</span>
+              <div><span className='username'>@</span><span className="username">{post.user._id}</span></div>
+              <span className="separator">·</span>
+              <span className="timestamp">{formatDateTime(post.timestamp)}</span>
             </div>
 
-            <div className="post-text">{post.content}</div>
-            {user ? (
-              <div className="actions">
-                <button className={`action-button like ${post.likes ? 'active' : ''}`} onClick={() => handleLike(post.id)}>
-                  <div className="action-icon"><Heart size={18} fill={post.likes ? 'currentColor' : 'none'} /></div>
-                  <span>{formatNumber(post.likes)}</span>
-                </button>
-                <button className="action-button comment" onClick={toggleComments}>
-                  <div className="action-icon"><MessageCircle size={18} /></div>
-                  <span>{formatNumber(post.comments.length)}</span>
-                </button>
-              </div>
-            ) : (
-              <h4 className="login-warning">
-                Você precisa estar logado para curtir, comentar e interagir com as postagens.<br />
-                <Link className="login-link" to="/login">Entre ou crie sua conta agora.</Link >
-              </h4>
-
-            )}
-
+            <div className="more-container">
+              <button className="more-button" onClick={() => setShowMenu(prev => !prev)}>
+                <MoreHorizontal size={20} />
+              </button>
+              {showMenu && (
+                <div className="dropdown-menu">
+                  <button onClick={() => handleEdit(post._id)}><Edit size={14} /> Editar</button>
+                  <button onClick={() => handleDelete(post._id)}><Trash2 size={14} /> Excluir</button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {showComments && (
-          <div className="comments-section">
-            {/* Adicionar novo comentário */}
-            <div className="add-comment">
-              <div className="comment-form">
-                <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
-                <div className="comment-input-container">
-                  <textarea
-                    className="comment-textarea"
-                    value={newComment.post === post.id ? newComment.content : ''}
-                    onChange={(e) =>
-                      setNewComment({ post: post.id, content: e.target.value })
-                    }
-                    placeholder="Adicionar um comentário..."
-                    rows={3}
-                  />
-                  <div className="comment-actions">
-                    <button
-                      className="comment-submit"
-                      onClick={() => handleAddComment(post.id, newComment.content)}
-                      disabled={!newComment.content.trim()}
-                    >
-                      Comentar
-                    </button>
-                  </div>
+          <div className="post-text">{post.content}</div>
+
+          {user ? (
+            <div className="actions">
+              <button
+                className={`action-button like ${likeData?.likedByUser ? 'active' : ''}`}
+                onClick={() => handleLike(post._id)}
+              >
+                <div className="action-icon">
+                  <Heart size={18} fill={likeData?.likedByUser ? 'currentColor' : 'none'} />
+                </div>
+                <span>{formatNumber(likeData?.totalLikes || 0)}</span>
+              </button>
+
+              <button className="action-button comment" onClick={toggleComments}>
+                <div className="action-icon"><MessageCircle size={18} /></div>
+                <span>{formatNumber(comments.length)}</span>
+              </button>
+            </div>
+          ) : (
+            <h4 className="login-warning">
+              Você precisa estar logado para curtir, comentar e interagir.<br />
+              <Link className="login-link" to="/login">Entre ou crie sua conta agora.</Link>
+            </h4>
+          )}
+        </div>
+      </div>
+
+      {showComments && (
+        <div className="comments-section">
+          {/* Adicionar novo comentário */}
+          <div className="add-comment">
+            <div className="comment-form">
+              <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
+              <div className="comment-input-container">
+                <textarea
+                  className="comment-textarea"
+                  value={newComment.post === post._id ? newComment.content : ''}
+                  onChange={(e) => setNewComment({ post: post._id, content: e.target.value })}
+                  placeholder="Adicionar um comentário..."
+                  rows={3}
+                />
+                <div className="comment-actions">
+                  <button
+                    className="comment-submit"
+                    onClick={() => handleAddComment(post._id, newComment.content)}
+                    disabled={!newComment.content.trim()}
+                  >
+                    Comentar
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Comentários existentes */}
-            {comments.map(comment => (
-              <div key={comment.id} className="comment">
-                <div className="comment-header">
-                  <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
-                  <div className="comment-content">
-                    <div className="comment-user-info">
-                      <div className="comment-user-info-1">
-                        <span className="comment-user-name">{comment.user.nome}</span>
-                        <span className="username">@{comment.user._id}</span>
-                        <span className="separator">·</span>
-                        <span className="timestamp">{formatDateTime(comment.timestamp)}</span>
-                      </div>
-
-                      {/* Dropdown para comentário */}
-                      <div className="more-container">
-                        <button
-                          className="more-button"
-                          onClick={() =>
-                            setOpenCommentMenuId(prev => prev === comment.id ? null : comment.id)
-                          }
-                        >
-                          <MoreHorizontal size={16} />
-                        </button>
-
-                        {openCommentMenuId === comment.id && (
-                          <div className="dropdown-menu">
-                            <button onClick={() => handleEditComment(comment)}>
-                              <Edit size={14} /> Editar
-                            </button>
-                            <button onClick={() => handleDeleteComment(comment.id)}>
-                              <Trash2 size={14} /> Excluir
-                            </button>
-                          </div>
-                        )}
-                        {showEdit === "comment" && (
-                          <EditarComment
-                            comment={editingComment!}
-                            isOpen={showEdit === 'comment'}
-                            onClose={() => setShowEdit(null)}
-                            postId={post.id}
-                          />
-                        )}
-
-                      </div>
+          {/* Comentários existentes */}
+          {comments.map(comment => (
+            <div key={comment.id} className="comment">
+              <div className="comment-header">
+                <div className="comment-avatar"><User size={20} color="var(--text-muted)" /></div>
+                <div className="comment-content">
+                  <div className="comment-user-info">
+                    <div className="comment-user-info-1">
+                      <span className="comment-user-name">{comment.user.nome}</span>
+                      <span className="username">@{comment.user._id}</span>
+                      <span className="separator">·</span>
+                      <span className="timestamp">{formatDateTime(comment.timestamp)}</span>
                     </div>
 
-                    <div className="comment-text">{comment.content}</div>
+                    <div className="more-container">
+                      <button
+                        className="more-button"
+                        onClick={() =>
+                          setOpenCommentMenuId(prev => prev === comment.id ? null : comment.id)
+                        }
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+
+                      {openCommentMenuId === comment.id && (
+                        <div className="dropdown-menu">
+                          <button onClick={() => handleEditComment(comment)}>
+                            <Edit size={14} /> Editar
+                          </button>
+                          <button onClick={() => handleDeleteComment(comment.id)}>
+                            <Trash2 size={14} /> Excluir
+                          </button>
+                        </div>
+                      )}
+                      {showEdit === "comment" && editingComment && (
+                        <EditarComment
+                          comment={editingComment}
+                          isOpen={showEdit === 'comment'}
+                          onClose={() => setShowEdit(null)}
+                          postId={post._id}
+                        />
+                      )}
+                    </div>
                   </div>
+
+                  <div className="comment-text">{comment.content}</div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {showEdit === 'post' && (
         <EditarPost
@@ -220,7 +241,7 @@ const PostBox = ({ post }: PostBoxProps) => {
           onClose={() => setShowEdit(null)}
         />
       )}
-    </>
+    </div>
   );
 }
 

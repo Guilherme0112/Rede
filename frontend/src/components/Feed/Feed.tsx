@@ -22,7 +22,7 @@ export default function Feed() {
       )}
 
       {posts && posts.length > 0 ? (
-        posts.map((post: Post) => <PostBox key={post.id} post={post} />)
+        posts.map((post: Post) => <PostBox key={post._id} post={post} />)
       ) : (
         <p>Nenhum post encontrado.</p>
       )}
