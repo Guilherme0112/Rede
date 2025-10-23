@@ -6,7 +6,7 @@ export default function Search() {
     <div className="search-bar">
       <div className="search-bar__input-wrapper">
         <SearchIcon size={18} />
-        <input type="text" placeholder="Pesquisar no Twitter" />
+        <input type="text" placeholder="Pesquise por algo..." />
       </div>
     </div>
   );

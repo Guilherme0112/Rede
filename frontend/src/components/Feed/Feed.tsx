@@ -3,7 +3,7 @@ import { useSelector } from "react-redux"
 import type { RootState } from "../../store"
 import PostBox from "../PostBox/PostBox"
 import CreatePost from "../CreatePost/CreatePost"
-import { usePosts } from "../../hooks/usePosts" // <-- importa o hook que criamos
+import { usePosts } from "../../hooks/usePosts"
 import type { Post } from "../../types/post"
 
 export default function Feed() {

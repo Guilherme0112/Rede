@@ -194,7 +194,7 @@ const PostBox = ({ post }: PostBoxProps) => {
                 <div className="comment-content">
                   <div className="comment-user-info">
                     <div className="comment-user-info-1">
-                      <span className="comment-user-name">{comment.user.nome}</span>
+                      <Link to={`/profile/${comment.user._id}`} className="comment-user-name">{comment.user.nome}</Link>
                       <span className="username">@{comment.user._id}</span>
                       <span className="separator">·</span>
                       <span className="timestamp">{formatDateTime(comment.timestamp)}</span>

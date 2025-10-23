@@ -6,6 +6,7 @@ import { authApi } from "../../../api/auth/authApi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store";
 import { fetchMe } from "../../../store/slices/authSlice";
+import toast from "react-hot-toast";
 
 type FormData = {
   email: string;
@@ -22,7 +23,7 @@ export default function LoginPage() {
       dispatch(fetchMe());
       window.location.href = "/";
     } catch (error) {
-      
+      toast.error("Credenciais inválidas")
     }
   };
 

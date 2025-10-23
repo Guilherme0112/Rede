@@ -1,4 +1,4 @@
-import { Home, User, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Home, User, LogIn, UserPlus, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import "./Sidebar.scss";
 import { authApi } from "../../api/auth/authApi";
@@ -42,6 +42,12 @@ export default function Sidebar() {
               <Link to={`/profile/${user._id}`}>
                 <User size={20} color="white" />
                 <span>Meu Perfil</span>
+              </Link>
+            </li>
+            <li>
+              <Link to={`/configuracoes`}>
+                <Settings size={20} color="white" />
+                <span>Configurações</span>
               </Link>
             </li>
             <li>

@@ -320,10 +320,11 @@
   cursor: pointer;
   text-decoration: none;
 
-.comment-user-name:hover {
-  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+    color: white;
+  }
 }
-
 
 .comment-text {
   color: var(--text-primary);
@@ -373,7 +374,7 @@
 .comment-like:hover .comment-like-icon {
   background-color: var(--red-hover);
 }
-}
+
 .more-container {
   position: relative;
   display: inline-block;

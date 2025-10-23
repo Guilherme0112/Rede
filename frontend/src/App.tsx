@@ -6,6 +6,7 @@ import Layout from './components/Layout/Layout'
 import RegisterPage from './pages/Auth/Register/RegisterPage'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { Toaster } from 'react-hot-toast'
+import ConfiguracoesPage from './pages/Configuracoes/ConfiguracoesPage'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path='/login' element={<LoginPage />} />
             <Route path='/register' element={<RegisterPage />} />
             <Route path='/profile/:id' element={<ProfilePage />} />
+            <Route path='/configuracoes' element={<ConfiguracoesPage />} />
           </Route>
         </Routes>
       </ BrowserRouter>
