@@ -32,15 +32,11 @@ const PostBox = ({ post }: PostBoxProps) => {
   const { mutate: deleteComment } = useDeleteComment(post._id);
   const { data: comments = [] } = useComments(post._id);
 
-  // Likes
   const { data: likeData, refetch: refetchLikes } = usePostLikes(post._id);
   const { mutate: createLike } = useCreateLike();
   const { mutate: deleteLike } = useDeleteLike();
 
   const handleLike = (postId: string) => {
-
-    console.log(post._id);
-    console.log(postId)
 
     if (!user) {
       toast.error("Você precisa estar logado para curtir.");
@@ -107,23 +103,32 @@ const PostBox = ({ post }: PostBoxProps) => {
         <div className="post-content">
           <div className="user-info-container">
             <div className="user-info">
-              <span className="user-name">{post.user.nome}</span>
+              <Link to={`/profile/${post.user._id}`} className="user-name">{post.user.nome}</Link>
               <div><span className='username'>@</span><span className="username">{post.user._id}</span></div>
               <span className="separator">·</span>
               <span className="timestamp">{formatDateTime(post.timestamp)}</span>
             </div>
 
             <div className="more-container">
-              <button className="more-button" onClick={() => setShowMenu(prev => !prev)}>
-                <MoreHorizontal size={20} />
-              </button>
-              {showMenu && (
-                <div className="dropdown-menu">
-                  <button onClick={() => handleEdit(post._id)}><Edit size={14} /> Editar</button>
-                  <button onClick={() => handleDelete(post._id)}><Trash2 size={14} /> Excluir</button>
-                </div>
+              {user && String(post.user._id) === String(user?._id) && (
+                <>
+                  <button className="more-button" onClick={() => setShowMenu(prev => !prev)}>
+                    <MoreHorizontal size={20} />
+                  </button>
+                  {showMenu && (
+                    <div className="dropdown-menu">
+                      <button onClick={() => handleEdit(post._id)}>
+                        <Edit size={14} /> Editar
+                      </button>
+                      <button onClick={() => handleDelete(post._id)}>
+                        <Trash2 size={14} /> Excluir
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
+
           </div>
 
           <div className="post-text">{post.content}</div>

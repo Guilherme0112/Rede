@@ -25,7 +25,7 @@ const EditarPost = ({ post, isOpen, onClose }: EditarPostProps) => {
         }
 
         updatePost(
-            { post: post.id, content },
+            { post: post._id, content },
             {
                 onSuccess: () => {
                     toast.success('Post atualizado com sucesso!');

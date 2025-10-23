@@ -39,7 +39,7 @@ export default function Sidebar() {
         {user ? (
           <>
             <li>
-              <Link to="/profile">
+              <Link to={`/profile/${user._id}`}>
                 <User size={20} color="white" />
                 <span>Meu Perfil</span>
               </Link>

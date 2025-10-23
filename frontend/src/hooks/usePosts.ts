@@ -28,6 +28,14 @@ export function useUpdatePost() {
   });
 }
 
+export function usePostsByUser(id: string) {
+  return useQuery<Post[]>({
+    queryKey: ['posts', 'user', id],
+    queryFn: () => postApi.getByIdUser(id),
+    enabled: !!id,
+  });
+}
+
 
 export function useCreatePost() {
   const queryClient = useQueryClient()

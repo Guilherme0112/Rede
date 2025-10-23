@@ -10,6 +10,10 @@ export const postApi = {
     const response = await api.get(`/api/posts/${id}`)
     return response.data;
   },
+  getByIdUser: async (id: string): Promise<Post[]> => {
+    const response = await api.get(`/api/posts/user/${id}`)
+    return response.data;
+  },
   create: async (data: any): Promise<Post> => {
     const response = await api.post('/api/posts', data)
     return response.data;
