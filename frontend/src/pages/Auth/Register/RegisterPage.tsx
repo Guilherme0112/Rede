@@ -2,17 +2,23 @@ import { useForm } from "react-hook-form";
 import "./RegisterPage.scss";
 import Input from "../../../components/Input/Input";
 import type { User } from "../../../types/User";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../../../api/users/userApi";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<User>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<User>();
+  const navigate = useNavigate();
 
-  const onSubmit = async(data: User) => {
+  const senha = watch("senha");
+
+  const onSubmit = async (data: User) => {
     try {
-      const res = await userApi.create(data);
+      await userApi.create(data);
+      toast.success("Usuário criado com sucesso! Faça login para continuar");
+      navigate("/login");
     } catch (error) {
-      
+      toast.error("Ocorreu algum erro ao criar o usuário");
     }
   };
 
@@ -34,7 +40,7 @@ export default function RegisterPage() {
             placeholder="Email"
             {...register("email", {
               required: "Email é obrigatório",
-              pattern: { value: /^\S+@\S+$/i, message: "Email inválido" }
+              pattern: { value: /^\S+@\S+$/i, message: "Email inválido" },
             })}
             error={errors?.email?.message || null}
           />
@@ -42,18 +48,27 @@ export default function RegisterPage() {
           <Input
             type="password"
             placeholder="Senha"
-            {...register("senha", { required: "Senha é obrigatória", minLength: { value: 6, message: "Mínimo 6 caracteres" } })}
+            {...register("senha", {
+              required: "Senha é obrigatória",
+              minLength: { value: 6, message: "Mínimo 6 caracteres" },
+            })}
             error={errors?.senha?.message || null}
           />
-
 
           <Input
             type="password"
             placeholder="Repita a senha"
+            {...register("confirmarSenha", {
+              required: "Confirme a senha",
+              validate: value =>
+                value === senha || "As senhas não coincidem",
+            })}
+            error={errors?.confirmarSenha?.message || null}
           />
 
           <button type="submit">Cadastrar</button>
         </form>
+
         <p className="login__register">
           Já tem conta? <Link to="/login">Faça login</Link>
         </p>

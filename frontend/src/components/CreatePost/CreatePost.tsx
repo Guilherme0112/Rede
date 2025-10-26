@@ -22,7 +22,7 @@ export default function CreatePost({
       { content },
       {
         onSuccess: () => {
-          toast.success('A psotagem foi publicada com sucesso')
+          toast.success('Sua postagem foi publicada com sucesso!')
           setContent('');
           if (onPost) onPost({ text: content })
         },

@@ -103,7 +103,7 @@ const PostBox = ({ post }: PostBoxProps) => {
         <div className="post-content">
           <div className="user-info-container">
             <div className="user-info">
-              <Link to={`/profile/${post.user._id}`} className="user-name">{post.user.nome}</Link>
+              <Link to={`/profile/${post.user._id}`} className="user-name">{post.user.nome ?? "Usuário deletado"}</Link>
               <div><span className='username'>@</span><span className="username">{post.user._id}</span></div>
               <span className="separator">·</span>
               <span className="timestamp">{formatDateTime(post.timestamp)}</span>

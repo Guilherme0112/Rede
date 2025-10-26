@@ -71,3 +71,24 @@
     }
   }
 }
+
+.btn_danger {
+  width: 100%;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background-color: #dc3546b0;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+}
