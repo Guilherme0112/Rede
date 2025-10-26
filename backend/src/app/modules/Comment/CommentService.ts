@@ -54,7 +54,7 @@ export class CommentService {
         const comment = await Comment.findById(updateComment.comment);
         if (!comment) throw new Error("Comentário não encontrado");
 
-        if (comment.user.toString() !== context.userId) {
+        if (comment.user.toString() !== context.userId.toString()) {
             throw new Error("Usuário não tem permissão para editar este comentário");
         }
 

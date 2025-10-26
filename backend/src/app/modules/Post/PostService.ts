@@ -21,6 +21,20 @@ export class PostService {
         return posts.map(post => new PostResponseDTO(post));
     }
 
+    async getByUserId(idUser: string): Promise<PostResponseDTO[]> {
+        const posts = await Post.find({ user: idUser })
+            .populate('user')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'user',
+                    model: 'User',
+                },
+            })
+            .sort({ timestamp: -1 });
+
+        return posts.map(post => new PostResponseDTO(post));
+    }
 
     async createPost(data: NewPostDTO): Promise<PostResponseDTO> {
         if (!data) throw new Error("O post não pode ser nulo");
@@ -49,7 +63,7 @@ export class PostService {
         if (!postBD) throw new Error("Post não encontrado");
 
         const postUserId = (postBD.user as any)._id ? (postBD.user as any)._id.toString() : postBD.user.toString();
-        if (postUserId !== context.userId) {
+       if (postUserId.toString() !== context.userId.toString()) {
             throw new Error("Você não tem permissão para editar este post");
         }
 

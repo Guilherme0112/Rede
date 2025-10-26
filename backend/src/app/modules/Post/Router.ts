@@ -14,6 +14,25 @@ router.get('/', async(request, response) => {
     }
 });
 
+router.get('/', async(request, response) => {
+    try {
+        const posts = await postService.getAll();
+        return response.status(200).send(posts);
+    } catch (error: any) {
+        return response.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/user/:idUser', async(request, response) => {
+    try {
+        const { idUser } = request.params;
+        const posts = await postService.getByUserId(idUser);
+        return response.status(200).send(posts);
+    } catch (error: any) {
+        return response.status(500).json({ error: error.message });
+    }
+});
+
 router.post('/', verifyToken, async(request, response) => {
     try {
         const post = await postService.createPost(request.body);
